@@ -1,32 +1,38 @@
-#(10258)Como Começar: Criar e Gerenciar Recursos de Nuvem: laboratório com desafio
+#(10258) Como Começar: Criar e Gerenciar Recursos de Nuvem: laboratório com desafio
 
 # Preparando o ambiente
 gcloud auth list
 gcloud config list project
 
 
-
 # Tarefa 1: crie uma instância para o projeto jumphost
-gcloud compute instances create nucleus-jumphost --machine-type f1-micro --zone us-east1-b
-#debian-9-stretch-v20210217
+gcloud compute instances create nucleus-jumphost \
+ --image-project debian-cloud --image-family debian-9 \
+ --machine-type f1-micro \
+ --zone us-east1-b
 
+# -------------------------------------------------------
 
 # Tarefa 2: crie um cluster de serviço do Kubernetes
 gcloud config set compute/zone us-east1-b
+
 
 # 2.1: Crie um cluster (na região us-east1) para hospedar o serviço
 gcloud container clusters create nucleus-webserver1
 gcloud container clusters get-credentials nucleus-webserver1
 
+
 # 2.2: Usar o contêiner do Docker "hello-app" ("gcr.io/google-samples/hello-app:2.0") 
 # como marcador (a equipe substituirá o contêiner pelo trabalho dela)
 kubectl create deployment hello-app --image=gcr.io/google-samples/hello-app:2.0
+
 
 # 2.3: Expor o app na porta 8080
 kubectl expose deployment hello-app --type=LoadBalancer --port 8080
 
 kubectl get service # Rodar até o hello-app ter um EXTERNAL-IP
 
+# -------------------------------------------------------
 
 # Tarefa 3: configure um balanceador de carga HTTP
 cat << EOF > startup.sh
@@ -95,6 +101,7 @@ gcloud compute url-maps create web-map \
 gcloud compute target-http-proxies create http-lb-proxy \
 --url-map web-map
 
+
 # 3.8: Criar uma regra de encaminhamento
 gcloud compute forwarding-rules create http-content-rule \
 --global \
@@ -102,3 +109,7 @@ gcloud compute forwarding-rules create http-content-rule \
 --ports 80
 
 gcloud compute forwarding-rules list
+
+# -------------------------------------------------------
+
+# Parabéns! Você terminou este laboratório :)
